@@ -19,14 +19,15 @@ module dac_ad5318(
     // local declarations //
     ////////////////////////
     
-   //регистры входа на каждый из выходов
+   //input registers on every output
    logic [9:0]  A_inreg, B_inreg, C_inreg, D_inreg, E_inreg, F_inreg, G_inreg, H_inreg;
-   //DAC регистры на каждом из выходов
+   //DAC registers on every output
    logic [9:0]  A_DACreg, B_DACreg, C_DACreg, D_DACreg, E_DACreg, F_DACreg, G_DACreg, H_DACreg;
    //—имул€ци€ Power-down ключей дл€ выполнени€ контрольной команды Power-down(все выключены).
+   //Simulation Power-dwn key's for complition Power-down comand(all in power-off state at begining)
    logic        A_key = 1'b1, B_key = 1'b1, C_key = 1'b1, D_key = 1'b1, E_key = 1'b1, F_key = 1'b1, G_key = 1'b1 , H_key = 1'b1;
-   logic [5:0]  count = 1'd0;                 //переменна€ - счетчик
-   logic [15:0] din_shift;                    // сдвиговый регистр на входе
+   logic [5:0]  count = 1'd0;                 //counter
+   logic [15:0] din_shift;                    //shift-register at the enterance
    
    enum 
    logic [1:0] {Control_functions = 2'b00,
@@ -51,10 +52,10 @@ module dac_ad5318(
          count <= count + 1'b1;
          din_shift <= { DIN , din_shift[15:1] };
          end:sync_if
-         if (count > 17)
+         if (count > 16)
             $error("Over 16 bits!");
             
-         if (count == 17) begin:cnt_16
+         if (count == 16) begin:cnt_16
              count <= 0;
              
          if (LDAC_flag) begin
@@ -186,8 +187,8 @@ module dac_ad5318(
                                         end           
                 endcase 
             end:op_15 else begin:chan_case
+//            inreg[din_shift[14:12]] = din_shift[11:2]
                            case (din_shift[14:12])
-                        
                                  3'b000:  A_inreg <= din_shift[11:2];
              
                                  3'b001:  B_inreg <= din_shift[11:2];

@@ -1,20 +1,22 @@
 module ad5318#(
-    parameter DIVIDER = 4'd4,   //Делитель  работает только с четными числами!!
-                                //Способен обработать деление на числа от 2 до 14 включительно
-    parameter LDAC_VALUE = 1'b1 //параметр, отвечающий за значение обновления регистров DAC
-                                //(Рекомендуется держать в высоком состоянии, 
-                                //чтоб регистры входа не влияли на DAC-регистры при запуске)
+    parameter DIVIDER = 4'd4,   //Divisor only works with even numbers!!
+                                //Able to handle division by numbers from 2 to 14 inclusive
+    parameter LDAC_VALUE = 1'b1 //parameter responsible for the update value of the DAC registers
+                                //(Recommended to keep high,
+                                //so that the input registers do not affect the DAC registers at startup)
     )(
-    input  logic        clkin,  //тактирование
-    input  logic        rstn,   //сигнал reset
+    input  logic        clkin,  //clocking signal
+    input  logic        rstn,   //reset signal
     
-    //сигналы в ЦАП
+    
+    
+    //signals in DAC
     output logic        SCLK,
     output logic        DIN,
     output logic        SYNC_b,
     output logic        LDAC_b,
     
-    //сигналы модуля
+    //module signals
     input  logic [15:0] tdata,
     input  logic        tvalid,
     input  logic [2:0]  tuser,
@@ -23,8 +25,9 @@ module ad5318#(
     );
     
     ////////////////////////
-    //Локальные объявления//
+    // Local declarations //
     ////////////////////////
+    
     logic [3:0]   div_reg = 0;
     
     logic [15:0]  din_shift;
@@ -35,17 +38,20 @@ module ad5318#(
     logic         state;
     logic [5:0]   count_module;
     
-    //////////////////
-    //Главный модуль//
-    //////////////////
+    logic         idle_clk;
     
-    //Реалиация делителя частоты на регистрах
+    /////////////////
+    // Main module //
+    /////////////////
+    
+    //Frequency divider on registers 
     always_ff @(posedge clkin)
     if (~rstn) begin
         SCLK <= 0;  
         state <= waiting;
         tready <= 1;
         SYNC_b <= 1;
+        idle_clk <= 1;
         count_module <= 0;
     end else begin
             div_reg <= div_reg + 1;
@@ -57,18 +63,17 @@ module ad5318#(
     end  
    
 
-    assign LDAC_b = LDAC_VALUE; //установка значения LDAC сигнала
+    assign LDAC_b = LDAC_VALUE; //LDAC start setup
 
 
-    always_ff @(posedge SCLK) //автомат конечных состояний 
-//       if (~rstn) begin
-                
-//       end else
+    always_ff @(posedge clkin) //state-machine
+    
            case (state)
                 waiting : begin
                           if (tvalid) begin
                              tready <= 0; 
-                             state <= busy;   
+                             state <= busy; 
+                             idle_clk <= 1;  
                                  
                               if (tdata[15]) din_shift <= tdata;
                               else din_shift <= { 1'b0 , tuser[2:0] , tdata[9:0], 2'b00};  
@@ -77,18 +82,23 @@ module ad5318#(
 
                            end
                    busy : begin
+                          if (div_reg == DIVIDER/2 -1 && ~SCLK) begin:sclk
                           DIN <= din_shift[0]; 
                           SYNC_b <= 0;
                           din_shift <= { 1'b0 , din_shift[15:1] };
                           count_module <= count_module + 1;
-                           
+                          
                              if (count_module == 16) begin
                                  state <= waiting;
                                  count_module <= 0;
                                  tready <= 1;
                                  SYNC_b <= 1;
+                                 
                              end
-                                                    
+                          end:sclk
+                          
+                          if (SCLK) idle_clk <= ~idle_clk;
+                                                       
                           end
           endcase
 
