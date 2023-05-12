@@ -4,7 +4,7 @@
 
 Данный модуль написан для ЦАП'а AD5318.
 
-![dac_ad5318]https://github.com/0TulipRose0/DAC/blob/main/Pics%20and%20datasheat/DAC%20ad53xx.png
+![dac_ad5318] https://github.com/0TulipRose0/DAC/blob/main/Pics%20and%20datasheat/DAC%20ad53xx.png
 
 Его задача состоит в управлении данным ЦАП'ом и выдаче ему необходимо информации.
 
