@@ -18,19 +18,17 @@ module dac_ad5318(
     ////////////////////////
     // local declarations //
     ////////////////////////
-    
-   //input registers on every output
-   logic [9:0]  A_inreg, B_inreg, C_inreg, D_inreg, E_inreg, F_inreg, G_inreg, H_inreg;
-   //DAC registers on every output
-   logic [9:0]  A_DACreg, B_DACreg, C_DACreg, D_DACreg, E_DACreg, F_DACreg, G_DACreg, H_DACreg;
-   //—имул€ци€ Power-down ключей дл€ выполнени€ контрольной команды Power-down(все выключены).
-   //Simulation Power-dwn key's for complition Power-down comand(all in power-off state at begining)
+   
+   //Simulation Power-down key's for complition Power-down comand(all in power-off state at begining)
    logic        A_key = 1'b1, B_key = 1'b1, C_key = 1'b1, D_key = 1'b1, E_key = 1'b1, F_key = 1'b1, G_key = 1'b1 , H_key = 1'b1;
    logic [5:0]  count = 1'd0;                 //counter
-   logic [15:0] din_shift;                    //shift-register at the enterance
+   logic [15:0] din_shift;                    //shift-register at the input
    
+   //input registers on every output
    logic [0:9]  inreg  [7:0];
+   
    logic        key    [7:0];
+   //DAC registers on every output
    logic [0:9]  DACreg [7:0];
    
    enum 
@@ -39,11 +37,11 @@ module dac_ad5318(
                 Power_down        = 2'b10,
                 Reset             = 2'b11} control_words;
    
-   logic        VDD_bits_A_D, VDD_bits_E_H;   //биты симул€ции установки питани€
-   logic        BUF_bits_A_D, BUF_bits_E_H;   //биты симул€ции референса DAC 
-   logic        GAIN_bits_A_D, GAIN_bits_E_H; //биты симул€ции размаха напр€жени€(0 - Vref, 1 - 2Vref)        
+   logic        VDD_bits_A_D, VDD_bits_E_H;   //bits of power supply simulatio
+   logic        BUF_bits_A_D, BUF_bits_E_H;   //bits of DAC ref simulation 
+   logic        GAIN_bits_A_D, GAIN_bits_E_H; //voltage range simulation bits(0 - Vref, 1 - 2Vref)        
    
-   logic        LDAC_reg;                     //необходимые объ€влени€ дл€ LDAC
+   logic        LDAC_reg;                     //some LDAC regs
    logic        LDAC_single = 1'b0;
    logic        LDAC_flag   = 1'b1;
    
@@ -70,7 +68,7 @@ module dac_ad5318(
             if (din_shift[15]) begin:op_15
                 case(din_shift[14:13])  
          
-                     Control_functions: begin //команда выбора режимов референса
+                     Control_functions: begin //ref select comand
                                         
                                         VDD_bits_A_D <= din_shift[0];
                                         VDD_bits_E_H <= din_shift[1];
@@ -90,7 +88,7 @@ module dac_ad5318(
                                         $display("Ref select mode set");
                                         end
          
-                          LDAC_control: begin //настройка работы сигнала LDAC_b
+                          LDAC_control: begin //setting up the operation of the LDAC_b signal
                                         
                                         if (din_shift[1:0] == 0) LDAC_reg <= 0;
                                         
@@ -105,7 +103,7 @@ module dac_ad5318(
                                         $display("LDAC new mode set");
                                         end
          
-                            Power_down: begin //отключение питани€ выходам ÷јѕ(установка в 1 - выкл, 0 - вкл)
+                            Power_down: begin //power off to DAC outputs (setting to 1 - off, 0 - on)
                                               
                                         if (din_shift[0]) key[0] <= 1; //A
                                         else              key[0] <= 0;
@@ -134,7 +132,7 @@ module dac_ad5318(
                                         $display("Power-down mode settings set");
                                         end
          
-                                 Reset: begin //контрольна€ команда RESET
+                                 Reset: begin //control word RESET
                                         if (!din_shift[13]) begin
                                         
                                                for(int i = 0; i < 8; i = i +1) begin                                               
@@ -200,7 +198,7 @@ module dac_ad5318(
             DACreg[i] <= inreg[i];         
          end        
 
-         if (LDAC_single) begin //условие на единичную транзакцию
+         if (LDAC_single) begin //one-shot transaction
              LDAC_single <= 0;
              LDAC_reg <= 1;
          end
@@ -209,7 +207,7 @@ module dac_ad5318(
 
    end:main_alw   
    
-   //¬зависимости от установки ключа - работает выход или нет      
+   //Depending on the installation of the key - does the output work or not     
    assign  VoutA = ~key[0]  ? DACreg[0] //A
                             : 10'hZZZ; 
                            
