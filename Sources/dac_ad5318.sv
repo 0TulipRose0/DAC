@@ -27,7 +27,7 @@ module dac_ad5318(
    //input registers on every output
    logic [0:9]  inreg  [7:0];
    
-   logic        key    [7:0];
+//   logic        key    [7:0];
    //DAC registers on every output
    logic [0:9]  DACreg [7:0];
    
@@ -105,29 +105,29 @@ module dac_ad5318(
          
                             Power_down: begin //power off to DAC outputs (setting to 1 - off, 0 - on)
                                               
-                                        if (din_shift[0]) key[0] <= 1; //A
-                                        else              key[0] <= 0;
+                                        if (din_shift[0]) A_key <= 1; //A
+                                        else              A_key <= 0;
                                         
-                                        if (din_shift[1]) key[1] <= 1; //B
-                                        else              key[1] <= 0;
+                                        if (din_shift[1]) B_key <= 1; //B
+                                        else              B_key <= 0;
                                         
-                                        if (din_shift[2]) key[2] <= 1; //C
-                                        else              key[2] <= 0;
+                                        if (din_shift[2]) C_key <= 1; //C
+                                        else              C_key <= 0;
                                         
-                                        if (din_shift[3]) key[3] <= 1; //D
-                                        else              key[3] <= 0;
+                                        if (din_shift[3]) D_key <= 1; //D
+                                        else              D_key <= 0;
                                         
-                                        if (din_shift[4]) key[4] <= 1; //E
-                                        else              key[4] <= 0;
+                                        if (din_shift[4]) E_key <= 1; //E
+                                        else              E_key <= 0;
                                         
-                                        if (din_shift[5]) key[5] <= 1; //F
-                                        else              key[5] <= 0;
+                                        if (din_shift[5]) F_key <= 1; //F
+                                        else              F_key <= 0;
                                         
-                                        if (din_shift[6]) key[6] <= 1; //G
-                                        else              key[6] <= 0;
+                                        if (din_shift[6]) G_key <= 1; //G
+                                        else              G_key <= 0;
                                         
-                                        if (din_shift[7]) key[7] <= 1; //H
-                                        else              key[7] <= 0;
+                                        if (din_shift[7]) H_key <= 1; //H
+                                        else              H_key <= 0;
                                         
                                         $display("Power-down mode settings set");
                                         end
@@ -208,28 +208,28 @@ module dac_ad5318(
    end:main_alw   
    
    //Depending on the installation of the key - does the output work or not     
-   assign  VoutA = ~key[0]  ? DACreg[0] //A
+   assign  VoutA = ~A_key   ? DACreg[0] //A
                             : 10'hZZZ; 
                            
-   assign  VoutB = ~key[1]  ? DACreg[1] //B
+   assign  VoutB = ~B_key   ? DACreg[1] //B
                             : 10'hZZZ;
                            
-   assign  VoutC = ~key[2]  ? DACreg[2] //C
+   assign  VoutC = ~C_key   ? DACreg[2] //C
                             : 10'hZZZ; 
                                          
-   assign  VoutD = ~key[3]  ? DACreg[3] //D
+   assign  VoutD = ~D_key   ? DACreg[3] //D
                             : 10'hZZZ;
                             
-   assign  VoutE = ~key[4]  ? DACreg[4] //E
+   assign  VoutE = ~E_key   ? DACreg[4] //E
                             : 10'hZZZ;
                              
-   assign  VoutF = ~key[5]  ? DACreg[5] //F
+   assign  VoutF = ~F_key   ? DACreg[5] //F
                             : 10'hZZZ;
                             
-   assign  VoutG = ~key[6]  ? DACreg[6] //G
+   assign  VoutG = ~G_key  ? DACreg[6] //G
                             : 10'hZZZ;
                             
-   assign  VoutH = ~key[7]  ? DACreg[7] //H
+   assign  VoutH = ~H_key   ? DACreg[7] //H
                             : 10'hZZZ;
                    
     
