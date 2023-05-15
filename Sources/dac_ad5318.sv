@@ -29,6 +29,10 @@ module dac_ad5318(
    logic [5:0]  count = 1'd0;                 //counter
    logic [15:0] din_shift;                    //shift-register at the enterance
    
+   logic [0:9]  inreg  [7:0];
+   logic        key    [7:0];
+   logic [0:9]  DACreg [7:0];
+   
    enum 
    logic [1:0] {Control_functions = 2'b00,
                 LDAC_control      = 2'b01,
@@ -103,72 +107,54 @@ module dac_ad5318(
          
                             Power_down: begin //отключение питания выходам ЦАП(установка в 1 - выкл, 0 - вкл)
                                               
-                                        if (din_shift[0]) A_key <= 1;
-                                        else              A_key <= 0;
+                                        if (din_shift[0]) key[0] <= 1; //A
+                                        else              key[0] <= 0;
                                         
-                                        if (din_shift[1]) B_key <= 1;
-                                        else              B_key <= 0;
+                                        if (din_shift[1]) key[1] <= 1; //B
+                                        else              key[1] <= 0;
                                         
-                                        if (din_shift[2]) C_key <= 1;
-                                        else              C_key <= 0;
+                                        if (din_shift[2]) key[2] <= 1; //C
+                                        else              key[2] <= 0;
                                         
-                                        if (din_shift[3]) D_key <= 1;
-                                        else              D_key <= 0;
+                                        if (din_shift[3]) key[3] <= 1; //D
+                                        else              key[3] <= 0;
                                         
-                                        if (din_shift[4]) E_key <= 1;
-                                        else              E_key <= 0;
+                                        if (din_shift[4]) key[4] <= 1; //E
+                                        else              key[4] <= 0;
                                         
-                                        if (din_shift[5]) F_key <= 1;
-                                        else              F_key <= 0;
+                                        if (din_shift[5]) key[5] <= 1; //F
+                                        else              key[5] <= 0;
                                         
-                                        if (din_shift[6]) G_key <= 1;
-                                        else              G_key <= 0;
+                                        if (din_shift[6]) key[6] <= 1; //G
+                                        else              key[6] <= 0;
                                         
-                                        if (din_shift[7]) H_key <= 1;
-                                        else              H_key <= 0;
+                                        if (din_shift[7]) key[7] <= 1; //H
+                                        else              key[7] <= 0;
                                         
                                         $display("Power-down mode settings set");
                                         end
          
                                  Reset: begin //контрольная команда RESET
                                         if (!din_shift[13]) begin
-                                               A_inreg <= 0;
-                                               B_inreg <= 0;
-                                               C_inreg <= 0;
-                                               D_inreg <= 0;
-                                               E_inreg <= 0;
-                                               F_inreg <= 0;
-                                               G_inreg <= 0;
-                                               H_inreg <= 0;
+                                        
+                                               for(int i = 0; i < 8; i = i +1) begin                                               
+                                               inreg[i] <= 0;                                               
+                                               end
                                                
-                                               A_DACreg <= 0;
-                                               B_DACreg <= 0;
-                                               C_DACreg <= 0;
-                                               D_DACreg <= 0;
-                                               E_DACreg <= 0;
-                                               F_DACreg <= 0;
-                                               G_DACreg <= 0;
-                                               H_DACreg <= 0;
+                                               for(int i = 0; i < 8; i = i +1) begin                                              
+                                               DACreg[i] <= 0;                                               
+                                               end
+
                                                $display("Reset all DAC and inp. regs");
                                             end else begin
                                             
-                                                A_inreg <= 0;
-                                                B_inreg <= 0;
-                                                C_inreg <= 0;
-                                                D_inreg <= 0;
-                                                E_inreg <= 0;
-                                                F_inreg <= 0;
-                                                G_inreg <= 0;
-                                                H_inreg <= 0;
-                                                
-                                                A_DACreg <= 0;
-                                                B_DACreg <= 0;
-                                                C_DACreg <= 0;
-                                                D_DACreg <= 0;
-                                                E_DACreg <= 0;
-                                                F_DACreg <= 0;
-                                                G_DACreg <= 0;
-                                                H_DACreg <= 0;
+                                               for(int i = 0; i < 8; i = i +1) begin                                               
+                                               inreg[i] <= 0;                                               
+                                               end                                               
+                                               
+                                               for(int i = 0; i < 8; i = i +1) begin                                              
+                                               DACreg[i] <= 0;                                               
+                                               end
                                                 
                                                 VDD_bits_A_D <= 0;
                                                 VDD_bits_E_H <= 0;
@@ -189,36 +175,30 @@ module dac_ad5318(
             end:op_15 else begin:chan_case
 //            inreg[din_shift[14:12]] = din_shift[11:2]
                            case (din_shift[14:12])
-                                 3'b000:  A_inreg <= din_shift[11:2];
+                                 3'b000:  inreg[0] <= din_shift[11:2];  //A
              
-                                 3'b001:  B_inreg <= din_shift[11:2];
+                                 3'b001:  inreg[1] <= din_shift[11:2];  //B
                       
-                                 3'b010:  C_inreg <= din_shift[11:2];
+                                 3'b010:  inreg[2] <= din_shift[11:2];  //C
              
-                                 3'b011:  D_inreg <= din_shift[11:2];
+                                 3'b011:  inreg[3] <= din_shift[11:2];  //D
                               
-                                 3'b100:  E_inreg <= din_shift[11:2];
+                                 3'b100:  inreg[4] <= din_shift[11:2];  //E
                 
-                                 3'b101:  F_inreg <= din_shift[11:2];
+                                 3'b101:  inreg[5] <= din_shift[11:2];  //F
                               
-                                 3'b110:  G_inreg <= din_shift[11:2];
+                                 3'b110:  inreg[6] <= din_shift[11:2];  //G
              
-                                 3'b111:  H_inreg <= din_shift[11:2];
+                                 3'b111:  inreg[7] <= din_shift[11:2]; //H
                               
                           endcase 
                        end:chan_case              
          end:cnt_16
          if (!LDAC_reg) begin:ldac 
          
-            A_DACreg <= A_inreg;
-            B_DACreg <= B_inreg;
-            C_DACreg <= C_inreg;
-            D_DACreg <= D_inreg;
-            
-            E_DACreg <= E_inreg;
-            F_DACreg <= F_inreg;
-            G_DACreg <= G_inreg;
-            H_DACreg <= H_inreg;
+         for(int i = 0; i < 8; i = i + 1) begin
+            DACreg[i] <= inreg[i];         
+         end        
 
          if (LDAC_single) begin //условие на единичную транзакцию
              LDAC_single <= 0;
@@ -230,28 +210,28 @@ module dac_ad5318(
    end:main_alw   
    
    //Взависимости от установки ключа - работает выход или нет      
-   assign  VoutA = ~A_key   ? A_DACreg
+   assign  VoutA = ~key[0]  ? DACreg[0] //A
                             : 10'hZZZ; 
                            
-   assign  VoutB = ~B_key   ? B_DACreg
+   assign  VoutB = ~key[1]  ? DACreg[1] //B
                             : 10'hZZZ;
                            
-   assign  VoutC = ~C_key   ? C_DACreg
+   assign  VoutC = ~key[2]  ? DACreg[2] //C
                             : 10'hZZZ; 
                                          
-   assign  VoutD = ~D_key   ? D_DACreg
+   assign  VoutD = ~key[3]  ? DACreg[3] //D
                             : 10'hZZZ;
                             
-   assign  VoutE = ~E_key   ? E_DACreg
+   assign  VoutE = ~key[4]  ? DACreg[4] //E
                             : 10'hZZZ;
                              
-   assign  VoutF = ~F_key   ? F_DACreg
+   assign  VoutF = ~key[5]  ? DACreg[5] //F
                             : 10'hZZZ;
                             
-   assign  VoutG = ~G_key   ? G_DACreg
+   assign  VoutG = ~key[6]  ? DACreg[6] //G
                             : 10'hZZZ;
                             
-   assign  VoutH = ~H_key   ? H_DACreg
+   assign  VoutH = ~key[7]  ? DACreg[7] //H
                             : 10'hZZZ;
                    
     
