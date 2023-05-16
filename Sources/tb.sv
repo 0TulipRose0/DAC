@@ -13,6 +13,9 @@ logic        clkin, rstn;
 //Control signals
 logic        SCLK, DIN, SYNC_b, LDAC_b;
 
+//Out's
+logic        VoutE;
+
 //user signals
 logic [15:0] tdata;
 logic [2:0]  tuser;
@@ -47,7 +50,7 @@ dac_ad5318 device(
     .VoutA(),             //output chanels
     .VoutB(),
     .VoutC(),
-    .VoutE(),
+    .VoutE(VoutE),
     .VoutF(),
     .VoutG(),
     .VoutH()

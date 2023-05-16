@@ -35,7 +35,7 @@ module ad5318#(
     enum 
     logic        {waiting = 1'b0,
                   busy    = 1'b1} states;      
-    logic         state;
+
     logic [5:0]   count_module;
     
     logic         idle_clk;
@@ -48,7 +48,7 @@ module ad5318#(
     always_ff @(posedge clkin)
     if (~rstn) begin
         SCLK <= 0;  
-        state <= waiting;
+        states <= waiting;
         tready <= 1;
         SYNC_b <= 1;
         idle_clk <= 1;
@@ -68,11 +68,11 @@ module ad5318#(
 
     always_ff @(posedge clkin) //state-machine
     
-           case (state)
+           case (states)
                 waiting : begin
                           if (tvalid) begin
                              tready <= 0; 
-                             state <= busy; 
+                             states <= busy; 
                              idle_clk <= 1;  
                                  
                               if (tdata[15]) din_shift <= tdata;
@@ -89,7 +89,7 @@ module ad5318#(
                           count_module <= count_module + 1;
                           
                              if (count_module == 16) begin
-                                 state <= waiting;
+                                 states <= waiting;
                                  count_module <= 0;
                                  tready <= 1;
                                  SYNC_b <= 1;
