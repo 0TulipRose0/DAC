@@ -46,7 +46,7 @@ module dac_ad5318(
 //   typedef struct packed       {logic [0:7] inregs [7:0];
    
    
-                                    } chanel;
+//                                   } chanel;
    
    ///////////////////////////
    //Description of the work//
